@@ -67,6 +67,7 @@ def broadcast_player_table(state: GameStateTD, player_ids: List[int], *, title: 
         ("Coins", 6, "right"),
         ("Rubies", 6, "right"),
         ("Droplet", 7, "right"),
+        ("Potion", 6, "center"),   # NEW
         ("Bag", 4, "right"),
         ("Palm", 5, "right"),
         ("Pot", 4, "right"),
@@ -80,6 +81,11 @@ def broadcast_player_table(state: GameStateTD, player_ids: List[int], *, title: 
         if isinstance(desks, dict):
             return len(desks.get(pid, []))
         return 0
+
+    def _potion_str(pid: int) -> str:
+        ps = state["players"][pid]
+        filled = bool(ps.get("potion_filled", True))  # default True for robustness
+        return "FULL" if filled else "EMPTY"
 
     # Build table lines
     sep = " | "
@@ -95,12 +101,13 @@ def broadcast_player_table(state: GameStateTD, player_ids: List[int], *, title: 
             ps.get("coins", 0),
             ps.get("rubies", 0),
             ps.get("droplet_pos", 0),
+            _potion_str(pid),                  # NEW
             len(state["bags"].get(pid, [])),
             len(state.get("palms", {}).get(pid, [])),
             len(state["pots"].get(pid, [])),
             _desktop_len(pid),
         ]
-        row = sep.join(_fmt_cell(v, w, a) for (v, ( _, w, a)) in zip(row_vals, headers))
+        row = sep.join(_fmt_cell(v, w, a) for (v, (_, w, a)) in zip(row_vals, headers))
         rows.append(row)
 
     broadcast(state, f"\n[{title}]")
@@ -108,6 +115,7 @@ def broadcast_player_table(state: GameStateTD, player_ids: List[int], *, title: 
     broadcast(state, rule_line)
     for r in rows:
         broadcast(state, r)
+
 
 
 def confirm_all_players(state: GameStateTD, player_ids: List[int], prompt: str) -> None:
@@ -690,7 +698,33 @@ def phase_drawing(state: GameStateTD, round_no: int, player_ids: List[int], rng:
             if state["palms"][pid]:
                 returned_rest = return_all_palm_to_bag(state, pid)
                 broadcast(state, f"[Player {pid}] Returned remaining PALM chips to bag: {returned_rest}")
+            
+            # --- POTION RULE (new) ---
+            # If you PLACE a gray chip, have NOT exploded, and potion is filled:
+            # you may use the potion to undo this placement (return just placed gray chip to bag)
+            placed_tid = state["chips"][placed_cid]["type_id"]
+            placed_ctype = state["chip_types"][placed_tid]
+            placed_color = placed_ctype["color"]
 
+            if placed_color == "gray" and (not exploded) and bool(state["players"][pid].get("potion_filled", True)):
+                yn = input(
+                    f"[Player {pid}] Potion available: you placed a GRAY chip ({placed_cid}). "
+                    f"Use potion to put it back into the bag? [y/n]: "
+                ).strip().lower()
+
+                if yn in ("y", "yes", ""):
+                    # undo placement
+                    return_chip_from_pot_to_bag(state, pid, placed_cid)
+                    state["players"][pid]["potion_filled"] = False
+                    broadcast(
+                        state,
+                        f"[Player {pid}] POTION USED: returned just placed gray chip {placed_cid} back to bag. "
+                        f"Potion is now EMPTY."
+                    )
+                    # Important: do NOT advance pos_last, do NOT apply on-draw effects for this chip.
+                    # Proceed to next iteration (player will be prompted to draw again as usual).
+                    continue
+            
             # --- placement step + pos tracking ---
             step = effective_placement_step(state, pid, placed_cid)
             pos_last += int(step)
@@ -937,12 +971,70 @@ def phase_purchase(state: GameStateTD, round_no: int, player_ids: List[int], rng
 def phase_ruby_trade(state: GameStateTD, round_no: int, player_ids: List[int], rng: random.Random) -> None:
     blue_event_hook(state, "ruby_trade")
 
-    broadcast(state, "\n[RUBY TRADE] (stub) Local trades; results shown to all.")
+    broadcast(state, "\n[RUBY TRADE] Spend 2 rubies to either:")
+    broadcast(state, "  - refill your potion (ONLY if empty)")
+    broadcast(state, "  - move your droplet forward by +1 (repeatable)")
+    broadcast(state, "Enter actions per player; results are broadcast to all.")
+
+    RUBY_COST = 2
+
     for pid in player_ids:
-        msg = input(f"Player {pid}: enter ruby-trade summary (or empty) to broadcast: ").strip()
-        if msg:
-            broadcast(state, f"Player {pid} ruby trade: {msg}")
+        ensure_player(state, pid)
+
+        while True:
+            rubies = int(state["players"][pid]["rubies"])
+            droplet_pos = int(state["players"][pid].get("droplet_pos", 0))
+            potion_filled = bool(state["players"][pid].get("potion_filled", True))
+
+            broadcast(
+                state,
+                f"\nPlayer {pid} status: rubies={rubies}, droplet_pos={droplet_pos}, "
+                f"potion={'FILLED' if potion_filled else 'EMPTY'}"
+            )
+
+            if rubies < RUBY_COST:
+                broadcast(state, f"Player {pid}: not enough rubies to trade (need {RUBY_COST}).")
+                break
+
+            # Menu
+            print(f"Player {pid} options:")
+            print("  [d] Spend 2 rubies -> droplet +1")
+            print("  [p] Spend 2 rubies -> refill potion (only if empty)")
+            print("  [q] Finish ruby trade for this player")
+
+            choice = input(f"Player {pid} choice [d/p/q]: ").strip().lower()
+            if choice in ("q", "quit", "done", ""):
+                broadcast(state, f"Player {pid}: finished ruby trade.")
+                break
+
+            if choice in ("d", "droplet"):
+                state["players"][pid]["rubies"] -= RUBY_COST
+                state["players"][pid]["droplet_pos"] = int(state["players"][pid].get("droplet_pos", 0)) + 1
+                broadcast(
+                    state,
+                    f"Player {pid}: spent {RUBY_COST} rubies -> droplet_pos now {state['players'][pid]['droplet_pos']} "
+                    f"(rubies left {state['players'][pid]['rubies']})."
+                )
+                continue
+
+            if choice in ("p", "potion", "flask"):
+                if bool(state["players"][pid].get("potion_filled", True)):
+                    broadcast(state, f"Player {pid}: potion is already FILLED. Refill not allowed.")
+                    continue
+
+                state["players"][pid]["rubies"] -= RUBY_COST
+                state["players"][pid]["potion_filled"] = True
+                broadcast(
+                    state,
+                    f"Player {pid}: spent {RUBY_COST} rubies -> potion refilled "
+                    f"(rubies left {state['players'][pid]['rubies']})."
+                )
+                continue
+
+            broadcast(state, f"Player {pid}: invalid choice '{choice}'. Use d/p/q.")
+
     confirm_all_players(state, player_ids, "Ruby trade done. Round ends.")
+
 
 
 PhaseId = Literal[

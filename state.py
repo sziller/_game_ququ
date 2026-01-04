@@ -58,6 +58,8 @@ class PlayerStateTD(TypedDict):
 
     # Persistent placement head-start. Field index where chip placement "base" begins.
     droplet_pos: int
+    # NEW: Flask / potion state (persistent across rounds)
+    potion_filled: bool
 
 
 class GameStateTD(TypedDict):
@@ -174,6 +176,7 @@ def ensure_player(state: GameStateTD, player_id: int) -> None:
             "victory_points": 0,
             "rubies": 0,
             "droplet_pos": 0,
+            "potion_filled": True,  # NEW: starts filled
         }
 
 
