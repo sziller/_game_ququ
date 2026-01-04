@@ -1,2 +1,2 @@
-# _game_ququ
+= _game_ququ
 Quacksalber von Quedlinburg - Kennerspiel des Jahres 2018
