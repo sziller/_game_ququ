@@ -1,0 +1,217 @@
+= Contributing
+How to contribute to the _game_ququ project
+:toc:
+:toclevels: 2
+
+Thank you for your interest in contributing to this project.
+
+This repository implements a Python-based game engine and rules framework
+for a Quacks-style board game (round/phase flow, event cards, player state,
+and a steadily expanding ruleset). The codebase is intentionally designed
+for incremental correctness: small, reviewable changes are preferred over
+large, disruptive rewrites.
+
+== Project goals
+
+* Provide a readable and testable rules engine
+* Model game state and state transitions explicitly
+* Make it easy to add new rules, chips, and event cards
+* Maintain developer-friendly console output for verification and debugging
+
+== Ground rules for contributions
+
+=== 1. Keep pull requests small
+
+Prefer pull requests that do *one* clearly defined thing:
+
+* one refactor
+* one event card implementation
+* one bugfix
+* one test addition
+* one documentation update
+
+If you plan a larger or structural change, please open an Issue or Discussion first.
+
+=== 2. No silent architecture changes
+
+The architecture of this project is intentionally explicit:
+
+* Game state is centralized
+* Rounds and phases are clearly sequenced
+* Rules are implemented via dispatch tables and well-named functions
+
+Alternative architectural ideas are welcome, but should be discussed first.
+Please do not “hide” architectural rewrites inside a pull request.
+
+=== 3. Prefer determinism
+
+If new logic introduces randomness (e.g. card draws, chip pulls):
+
+* Provide a clear seeding strategy, or
+* Expose deterministic hooks for testing and debugging
+
+== Getting started
+
+=== 1. Fork and create a branch
+
+* Fork the repository
+* Create a branch from `main`, for example:
+
+* `feature/<short-description>`
+* `fix/<short-description>`
+* `docs/<short-description>`
+
+=== 2. Local development setup
+
+This project uses standard Python tooling.
+
+Recommended:
+* Python 3.11 or newer
+* A virtual environment
+
+Example setup:
+
+[source,bash]
+----
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip
+----
+
+If a requirements file exists:
+
+[source,bash]
+----
+pip install -r requirements.txt
+----
+
+If no dependencies are listed, the project should run using the standard library.
+
+=== 3. Running the game
+
+The entry point is documented in the README. Typical variants include:
+
+[source,bash]
+----
+python main.py
+# or
+python -m <package>
+# or
+python rounds.py
+----
+
+If you change how the project is executed, please update the README accordingly.
+
+== What to work on
+
+=== Good first contributions
+
+Issues labeled:
+
+* `good first issue`
+* `help wanted`
+
+are intentionally scoped to help new contributors become familiar with the codebase.
+
+Typical starter tasks include:
+
+* Improving or normalizing console/broadcast output
+* Implementing a single event card using dispatch logic
+* Replacing hard-coded branching with table-driven logic
+* Adding small tests for edge cases
+
+=== Event cards – preferred implementation style
+
+Event cards should be implemented using dispatch tables, not deep
+`if` / `elif` chains.
+
+High-level pattern:
+
+* `event_cards.py` defines card data (ID, title, description)
+* A dispatch registry maps `card_id → handler function`
+* The round/phase controller draws a card and invokes the handler
+* Handlers are small, explicit, and mutate only the central `state`
+
+When adding a new card:
+
+. Define the card with a stable `card_id`
+. Implement a handler function (e.g. `handle_<id>()`)
+. Register it in the dispatch table
+. Add at least a reproducible debug scenario or test
+
+=== State model expectations
+
+Game state is centralized in a `state` container (TypedDict-style).
+
+Please observe the following:
+
+* Define new state fields in a single, obvious location
+* Use helper functions such as `ensure_player()` where appropriate
+* Avoid spreading implicit state keys across multiple modules
+
+New state fields should be briefly documented.
+
+== Coding style
+
+* Keep functions small and clearly named
+* Avoid duplication; prefer shared helpers
+* Use accurate typing (e.g. `TypedDict`, `list[int]`)
+* Avoid unnecessary dependencies
+* Keep logging and broadcast output concise and consistent
+
+Docstrings:
+
+* Short for utility/helper functions
+* Structured for “public” engine functions (phases, handlers, core logic)
+
+== Tests
+
+If tests already exist:
+
+* Do not break existing tests
+* Add tests for new behavior
+
+If no test infrastructure exists yet:
+
+* Provide at least one reproducible scenario per non-trivial pull request, or
+* Add an executable debug function with clear instructions
+
+== Commit and pull request guidelines
+
+=== Commits
+
+Use clear, descriptive commit messages, for example:
+
+* `Implement event card: donations (purple_03)`
+* `Refactor: replace hard-coded card branching with dispatch table`
+* `Fix: ensure_player initializes desktops`
+
+=== Pull request description
+
+A pull request should include:
+
+* A short summary of what changed
+* The rationale (“why”)
+* How to test the changes
+* Open questions or follow-ups, if any
+
+== Reporting bugs / proposing features
+
+Please open a GitHub Issue and include:
+
+* Expected vs. actual behavior
+* Steps to reproduce
+* Relevant log output
+* Commit hash or branch name (if applicable)
+
+For larger changes, open a Discussion first.
+
+== Code of conduct
+
+Please be respectful and professional.
+Disagreements are normal, but discussions should remain technical and solution-oriented.
+
+== License
+
+By submitting a contribution, you agree that your work will be licensed
+under the same license as this repository.
