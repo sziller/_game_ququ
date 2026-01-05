@@ -1,2 +1,105 @@
 = _game_ququ
-Quacksalber von Quedlinburg - Kennerspiel des Jahres 2018
+Quacksalber von Quedlinburg – Kennerspiel des Jahres 2018
+:toc:
+:toclevels: 2
+
+Unofficial, Python-based game engine and rules framework inspired by *Quacksalber von Quedlinburg*.
+
+[WARNING]
+====
+This is an unofficial, fan-made project.
+The original board game is © Wolfgang Warsch / Schmidt Spiele.
+====
+
+== Project goals
+
+This project aims to provide a *clean, explicit, and testable* implementation of a Quacks-style board game engine.
+
+Key objectives:
+
+* Model the full game loop (rounds, phases, events) in a structured way
+* Centralize and make game state explicit and auditable
+* Replace hard-coded branching logic with dispatch- and table-driven rules
+* Enable incremental implementation of event cards, chips, and expansions
+* Provide developer-friendly console output for debugging and verification
+
+Non-goals (for now):
+
+* Graphical user interface
+* Online or networked multiplayer
+* Complete coverage of all expansions and edge rules
+
+Correctness, clarity, and maintainability take precedence over feature completeness.
+
+== Current status
+
+* ✔ Round and phase framework in place
+* ✔ Central player and game state handling
+* ✔ Event card data model
+* ✔ Ongoing refactor from hard-coded logic toward dispatch tables
+* ⏳ Rule coverage is partial and expanding incrementally
+
+The project is under *active development* and may change structure as rules are clarified.
+
+== Requirements
+
+* Python 3.11 or newer is recommended
+* No heavy external dependencies are required at this stage
+
+== Running the game
+
+Basic usage (entry point may evolve during development):
+
+[source,bash]
+----
+python main.py
+----
+
+Consult inline comments and recent commits for the most up-to-date execution flow.
+
+== Repository structure (high-level)
+
+[source,text]
+----
+.
+├── state.py          # Central game and player state definitions
+├── rounds.py         # Round and phase sequencing logic
+├── event_cards.py    # Event card definitions and dispatch logic
+├── actions.py        # Rule actions and helper functions
+├── board.py          # Board layout, constants, and field definitions
+└── main.py           # Entry point / simulation runner
+----
+
+Module names and responsibilities are intentionally explicit.  
+State mutations are centralized and should not be hidden behind implicit side effects.
+
+== Contributing
+
+Contributions are welcome from developers interested in:
+
+* Game engine and rule-system design
+* State machines and phase-based workflows
+* Refactoring toward table-driven logic
+* Deterministic and testable simulations
+
+Before opening an Issue or Pull Request, please read:
+
+* `CONTRIBUTING.md` (English, canonical)
+* `CONTRIBUTING_DE.md` (German)
+
+English is the canonical language for Issues, Pull Requests, and code comments.
+
+== Language versions
+
+* 🇬🇧 `README.md` – English (canonical)
+* 🇩🇪 `README_DE.md` – Deutsch
+
+The English version is the source of truth.  
+German documentation is provided as a convenience and may lag slightly behind.
+
+== License
+
+This repository is licensed under the terms specified in the `LICENSE` file.
+
+All trademarks, names, and rights related to *Quacksalber von Quedlinburg*
+belong to their respective owners.

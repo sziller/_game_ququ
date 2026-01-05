@@ -1,0 +1,108 @@
+= _game_ququ
+Quacksalber von Quedlinburg – Kennerspiel des Jahres 2018
+:toc:
+:toclevels: 2
+
+Inoffizielle, Python-basierte Game-Engine und Regel-Implementierung, inspiriert von *Quacksalber von Quedlinburg*.
+
+[WARNING]
+====
+Dies ist ein inoffizielles Fanprojekt.
+Das Originalspiel ist © Wolfgang Warsch / Schmidt Spiele.
+====
+
+== Zielsetzung des Projekts
+
+Ziel dieses Projekts ist es, eine *klare, explizite und testbare* Implementierung
+einer Quacks-ähnlichen Brettspiel-Engine bereitzustellen.
+
+Zentrale Ziele:
+
+* Abbildung des vollständigen Spielablaufs (Runden, Phasen, Ereignisse)
+* Zentraler, expliziter und nachvollziehbarer Spielzustand
+* Ersatz hart kodierter Fallunterscheidungen durch Dispatch- und Tabellenlogik
+* Schrittweise Implementierung von Ereigniskarten, Chips und Erweiterungen
+* Entwicklerfreundliche Konsolenausgaben zur Überprüfung und Fehlersuche
+
+Nicht-Ziele (vorerst):
+
+* Grafische Benutzeroberfläche
+* Online- oder Netzwerk-Multiplayer
+* Vollständige Abbildung aller Erweiterungen und Sonderregeln
+
+Korrektheit, Klarheit und Wartbarkeit haben Vorrang vor Funktionsvollständigkeit.
+
+== Aktueller Stand
+
+* ✔ Runden- und Phasen-Framework vorhanden
+* ✔ Zentrale Verwaltung von Spieler- und Spielzustand
+* ✔ Datenmodell für Ereigniskarten
+* ✔ Laufende Refaktorisierung von harter Logik hin zu Dispatch-Tabellen
+* ⏳ Regelabdeckung ist unvollständig und wird schrittweise erweitert
+
+Das Projekt befindet sich in *aktiver Entwicklung* und kann strukturelle Änderungen erfahren,
+wenn Regeln weiter präzisiert werden.
+
+== Voraussetzungen
+
+* Python 3.11 oder neuer empfohlen
+* Derzeit keine schweren externen Abhängigkeiten erforderlich
+
+== Ausführen des Spiels
+
+Grundlegende Ausführung (Einstiegspunkt kann sich im Laufe der Entwicklung ändern):
+
+[source,bash]
+----
+python main.py
+----
+
+Aktuelle Hinweise zur Ausführung finden sich in den Code-Kommentaren
+und in den letzten Commits.
+
+== Repository-Struktur (Übersicht)
+
+[source,text]
+----
+.
+├── state.py          # Zentrale Definitionen für Spiel- und Spielerzustand
+├── rounds.py         # Logik für Runden- und Phasenabfolge
+├── event_cards.py    # Definitionen und Dispatch-Logik für Ereigniskarten
+├── actions.py        # Regelaktionen und Hilfsfunktionen
+├── board.py          # Spielfeld-Layout, Konstanten und Felder
+└── main.py           # Einstiegspunkt / Simulationsrunner
+----
+
+Modulnamen und Verantwortlichkeiten sind bewusst explizit gehalten.  
+Zustandsänderungen sollen zentral erfolgen und nicht durch implizite Seiteneffekte verborgen werden.
+
+== Mitwirken
+
+Beiträge sind willkommen, insbesondere von Entwickler:innen mit Interesse an:
+
+* Game-Engine- und Regel-Design
+* Zustandsmaschinen und phasenbasierten Abläufen
+* Refaktorisierung hin zu tabellengetriebener Logik
+* Deterministischen und testbaren Simulationen
+
+Vor dem Erstellen von Issues oder Pull Requests bitte lesen:
+
+* `CONTRIBUTING.md` (Englisch, kanonisch)
+* `CONTRIBUTING_DE.md` (Deutsch)
+
+Englisch ist die kanonische Sprache für Issues, Pull Requests und Code-Kommentare.
+
+== Sprachversionen
+
+* 🇬🇧 `README.md` – Englisch (kanonisch)
+* 🇩🇪 `README_DE.md` – Deutsch
+
+Die englische Version ist die maßgebliche Referenz.  
+Die deutsche Dokumentation dient der Unterstützung und kann zeitlich leicht hinterherhinken.
+
+== Lizenz
+
+Dieses Repository steht unter der in der Datei `LICENSE` angegebenen Lizenz.
+
+Alle Marken, Namen und Rechte im Zusammenhang mit *Quacksalber von Quedlinburg*
+liegen bei den jeweiligen Rechteinhabern.
