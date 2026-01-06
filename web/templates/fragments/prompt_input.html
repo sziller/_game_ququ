@@ -1,0 +1,31 @@
+<h2>Prompt</h2>
+
+<div class="prompt-text"
+     data-hx-get="/g/{{ game_id }}/f/prompt?pid={{ pid }}"
+     data-hx-trigger="load, every 2s"
+     data-hx-swap="innerHTML">
+  Loading prompt...
+</div>
+
+<hr />
+
+<h2>Input</h2>
+
+{% if not is_my_turn %}
+  <div class="small muted">Waiting for pid={{ current_pid }}.</div>
+{% endif %}
+
+<form method="post" action="/g/{{ game_id }}/input">
+  <input type="hidden" name="pid" value="{{ pid }}" />
+
+  <input
+    type="text"
+    name="text"
+    placeholder="{% if is_my_turn %}Type your answer / command...{% else %}Not your turn{% endif %}"
+    autocomplete="off"
+    class="inputfield"
+    {% if not is_my_turn %}disabled{% endif %}
+  />
+
+  <button type="submit" {% if not is_my_turn %}disabled{% endif %}>Enter</button>
+</form>

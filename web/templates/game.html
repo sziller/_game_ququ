@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Game {{ game_id }}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body>
+  <div class="page page-with-prompt">
+    <header class="topbar">
+      <div>
+        <div class="small">Game</div>
+        <div class="mono">{{ game_id }}</div>
+      </div>
+      <div>
+        <div class="small">Join code</div>
+        <div class="mono">{{ join_code }}</div>
+      </div>
+      <div>
+        <div class="small">You are pid</div>
+        <div class="mono">{{ pid }}</div>
+      </div>
+      <div><a href="/">Back to lobby</a></div>
+    </header>
+
+    <div class="grid2">
+      <section class="card"
+               hx-get="/g/{{ game_id }}/f/board?pid={{ pid }}"
+               hx-trigger="load"
+               hx-swap="innerHTML">
+        Loading board...
+      </section>
+
+      <section class="card" 
+         hx-get="/g/{{ game_id }}/f/players?pid={{ pid }}"
+         hx-trigger="load, every 10s"
+         hx-swap="innerHTML">
+        Loading players...
+      </section>
+      <!-- PROMPT + INPUT stacked together -->
+      <section class="card prompt-input-stack"
+         data-hx-get="/g/{{ game_id }}/f/prompt_input?pid={{ pid }}"
+         data-hx-trigger="load"
+         data-hx-swap="innerHTML">
+  Loading prompt & input...
+</section>
+
+      <section class="card"
+               hx-get="/g/{{ game_id }}/f/actions?pid={{ pid }}"
+               hx-trigger="load, every 2s"
+               hx-swap="innerHTML">
+        Loading actions...
+      </section>
+      <section class="card log"
+               hx-get="/g/{{ game_id }}/f/log?pid={{ pid }}"
+               hx-trigger="load, every 2s"
+               hx-swap="innerHTML">
+        Loading log...
+      </section>
+    </div>
+  </div>
+</body>
+</html>

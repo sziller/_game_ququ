@@ -159,25 +159,41 @@ def build_pool(chips_def: List[Dict[str, Any]]) -> GameStateTD:
         "round_ctx": {},
     }
 
+def _new_player_state() -> PlayerStateTD:
+    return {
+        "coins": 0,
+        "victory_points": 0,
+        "rubies": 0,
+        "droplet_pos": 0,
+        "potion_filled": True,
+    }
+
 
 def ensure_player(state: GameStateTD, player_id: int) -> None:
     """
     Ensure the player's containers and central stats exist.
-    Creates empty bag/palm/pot lists and initializes stats if missing.
+
+    IMPORTANT:
+    - This function guarantees structure (keys/containers).
+    - It should NOT be the authoritative place for "starting rules".
+      Starting rules belong in setup.py (initial conditions).
     """
     state["bags"].setdefault(player_id, [])
-    state["palms"].setdefault(player_id, [])   # NEW
-    state["desktops"].setdefault(player_id, [])  # NEW
+    state["palms"].setdefault(player_id, [])
+    state["desktops"].setdefault(player_id, [])
     state["pots"].setdefault(player_id, [])
 
-    if player_id not in state["players"]:
-        state["players"][player_id] = {
-            "coins": 0,
-            "victory_points": 0,
-            "rubies": 0,
-            "droplet_pos": 0,
-            "potion_filled": True,  # NEW: starts filled
-        }
+    # Ensure players dict entry exists
+    state["players"].setdefault(player_id, _new_player_state())
+
+    # Set missing stat keys only (never overwrite)
+    ps = state["players"][player_id]
+    ps.setdefault("coins", 0)
+    ps.setdefault("victory_points", 0)
+    ps.setdefault("rubies", 0)            # <-- leave as 0 here
+    ps.setdefault("droplet_pos", 0)
+    ps.setdefault("potion_filled", True)
+
 
 
 def clear_round_ctx(state: GameStateTD) -> None:

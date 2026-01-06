@@ -1,0 +1,10 @@
+<h2>Players</h2>
+<ul class="plist">
+  {% for p in ui.players %}
+    <li class="{% if p.pid == ui.board.current_pid %}active{% endif %}">
+      <span class="mono">pid={{ p.pid }}</span>
+      <span>{{ p.name }}</span>
+      {% if p.pid == ui.board.current_pid %}<span class="badge">current</span>{% endif %}
+    </li>
+  {% endfor %}
+</ul>

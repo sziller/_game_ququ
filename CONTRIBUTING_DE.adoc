@@ -1,68 +1,222 @@
-# Contributing
+= Mitwirken (Contributing)
+Wie man zum Projekt _game_ququ_ beiträgt
+:toc:
+:toclevels: 2
 
-Thank you for considering contributing to this project.
+Vielen Dank für Ihr Interesse, zu diesem Projekt beizutragen.
 
-This repository implements a Python-based game engine and rule framework for a Quacks-style board game (turn/round phases, event cards, player state, and a steadily expanding ruleset). The codebase is intentionally structured for incremental correctness: we prefer small, reviewable changes over “big bang” rewrites.
+Dieses Repository implementiert eine Python-basierte Game-Engine und ein Regel-Framework
+für ein Quacks-ähnliches Brettspiel (Runden-/Phasenlogik, Ereigniskarten, Spielerzustand
+und ein stetig wachsendes Regelwerk). Die Codebasis ist bewusst auf **inkrementelle
+Korrektheit** ausgelegt: kleine, gut überprüfbare Änderungen werden großen, disruptiven
+Umbauten vorgezogen.
 
-## Project goals
+== Projektziele
 
-- Provide a readable, testable rules engine (round/phase flow, event cards, actions, state transitions).
-- Keep game logic explicit and auditable (avoid “magic” behavior).
-- Make it easy to add new rules, chips, and event cards without hard-coded branching.
-- Maintain a developer-friendly console output for debugging and verification.
+* Bereitstellung einer gut lesbaren und testbaren Regeln-Engine
+* Explizite Modellierung von Spielzustand und Zustandsübergängen
+* Einfache Erweiterbarkeit um neue Regeln, Chips und Ereigniskarten
+* Entwicklerfreundliche Konsolen- und Debug-Ausgaben zur Verifikation
 
-Non-goals (for now):
-- Full UI/graphics polish.
-- Multiplayer networking.
-- Perfect simulation accuracy for every expansion rule (these are added incrementally).
+== Grundregeln für Beiträge
 
----
+=== 1. Pull Requests klein halten
 
-## Ground rules (high signal expectations)
+Bevorzugen Sie Pull Requests, die *eine* klar abgegrenzte Aufgabe erfüllen:
 
-### 1) Keep PRs small
-Prefer PRs that do one thing:
-- one refactor,
-- one new card implementation,
-- one bugfix,
-- one test set,
-- one documentation improvement.
+* ein Refactoring
+* eine Ereigniskarten-Implementierung
+* ein Bugfix
+* eine Testerweiterung
+* ein Dokumentations-Update
 
-If you want to do a larger change, open a Discussion or Issue first.
+Wenn Sie eine größere oder strukturelle Änderung planen, eröffnen Sie bitte zuerst
+ein Issue oder eine Discussion.
 
-### 2) No “drive-by architecture”
-This project has an intentionally explicit architecture:
-- state is stored centrally,
-- phases are sequenced,
-- rules are implemented as functions invoked by dispatch tables.
+=== 2. Keine stillen Architekturänderungen
 
-If you disagree with the approach, that’s fine—open a Discussion. Do not “sneak” architectural rewrites into a PR.
+Die Architektur dieses Projekts ist bewusst explizit gehalten:
 
-### 3) Be deterministic where possible
-If you introduce randomness (e.g., card shuffling, chip draws), ensure:
-- there is a clear seeding strategy for tests or debug runs, or
-- deterministic hooks exist (e.g., injectable RNG).
+* Der Spielzustand ist zentralisiert
+* Runden und Phasen sind klar sequenziert
+* Regeln werden über Dispatch-Tabellen und eindeutig benannte Funktionen umgesetzt
 
----
+Alternative Architekturideen sind willkommen, sollten aber vorab diskutiert werden.
+Bitte „verstecken“ Sie keine Architektur-Neuschreibungen in einem Pull Request.
 
-## How to get started
+=== 3. Determinismus bevorzugen
 
-### 1) Fork and branch
-- Fork the repo.
-- Create a feature branch from `main`:
-  - `feature/<short-description>`
-  - `fix/<short-description>`
-  - `docs/<short-description>`
+Falls neue Logik Zufälligkeit einführt (z.B. Kartenziehen, Chip-Ziehen):
 
-### 2) Local setup
-This project is plain Python.
+* Stellen Sie eine klare Seeding-Strategie bereit, oder
+* Exponieren Sie deterministische Hooks für Tests und Debugging
 
-Recommended:
-- Python 3.11+ (3.10 may work depending on typing features used)
-- A virtual environment
+== Erste Schritte
 
-Example:
-```bash
+=== 1. Fork und Branch erstellen
+
+* Forken Sie das Repository
+* Erstellen Sie einen Branch von `main`, zum Beispiel:
+
+* `feature/<kurze-beschreibung>`
+* `fix/<kurze-beschreibung>`
+* `docs/<kurze-beschreibung>`
+
+=== 2. Lokales Entwicklungs-Setup
+
+Dieses Projekt verwendet Standard-Python-Tooling.
+
+Empfohlen:
+* Python 3.11 oder neuer
+* Eine virtuelle Umgebung
+
+Beispiel-Setup:
+
+[source,bash]
+----
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -U pip
+----
+
+Falls eine Requirements-Datei existiert:
+
+[source,bash]
+----
+pip install -r requirements.txt
+----
+
+Falls keine Abhängigkeiten definiert sind, sollte das Projekt ausschließlich mit der
+Standardbibliothek lauffähig sein.
+
+=== 3. Spiel ausführen
+
+Der Einstiegspunkt ist im README dokumentiert. Typische Varianten sind:
+
+[source,bash]
+----
+python main.py
+# oder
+python -m <package>
+# oder
+python rounds.py
+----
+
+Wenn Sie ändern, wie das Projekt ausgeführt wird, aktualisieren Sie bitte das README
+entsprechend.
+
+== Woran gearbeitet werden kann
+
+=== Gute erste Beiträge
+
+Issues mit den Labels:
+
+* `good first issue`
+* `help wanted`
+
+sind bewusst so zugeschnitten, dass neue Mitwirkende sich mit der Codebasis vertraut
+machen können.
+
+Typische Einstiegsaufgaben sind:
+
+* Verbesserung oder Vereinheitlichung der Konsolen-/Broadcast-Ausgaben
+* Implementierung einer einzelnen Ereigniskarte mittels Dispatch-Logik
+* Ersetzen von hart codierten Verzweigungen durch tabellengetriebene Logik
+* Hinzufügen kleiner Tests für Randfälle
+
+=== Ereigniskarten – bevorzugter Implementierungsstil
+
+Ereigniskarten sollten mittels Dispatch-Tabellen implementiert werden, nicht über tiefe
+`if`- / `elif`-Ketten.
+
+Grundmuster:
+
+* `event_cards.py` definiert die Kartendaten (ID, Titel, Beschreibung)
+* Ein Dispatch-Register mappt `card_id → Handler-Funktion`
+* Der Runden-/Phasen-Controller zieht eine Karte und ruft den Handler auf
+* Handler sind klein, explizit und verändern ausschließlich den zentralen `state`
+
+Beim Hinzufügen einer neuen Karte:
+
+. Definieren Sie die Karte mit einer stabilen `card_id`
+. Implementieren Sie eine Handler-Funktion (z.B. `handle_<id>()`)
+. Registrieren Sie diese in der Dispatch-Tabelle
+. Fügen Sie mindestens ein reproduzierbares Debug-Szenario oder einen Test hinzu
+
+=== Erwartungen an das Zustandsmodell
+
+Der Spielzustand ist zentral in einem `state`-Container (TypedDict-Stil) abgelegt.
+
+Bitte beachten Sie:
+
+* Neue State-Felder an einer einzigen, klar erkennbaren Stelle definieren
+* Hilfsfunktionen wie `ensure_player()` verwenden, wo sinnvoll
+* Implizite State-Keys nicht über mehrere Module verstreuen
+
+Neue State-Felder sollten kurz dokumentiert werden.
+
+== Coding-Style
+
+* Funktionen klein und klar benannt halten
+* Duplikation vermeiden; gemeinsame Hilfsfunktionen bevorzugen
+* Saubere Typisierung verwenden (z.B. `TypedDict`, `list[int]`)
+* Unnötige Abhängigkeiten vermeiden
+* Logging- und Broadcast-Ausgaben knapp und konsistent halten
+
+Docstrings:
+
+* Kurz für Utility-/Helper-Funktionen
+* Strukturiert für „öffentliche“ Engine-Funktionen (Phasen, Handler, Kernlogik)
+
+== Tests
+
+Falls bereits Tests existieren:
+
+* Vorhandene Tests nicht brechen
+* Tests für neues Verhalten ergänzen
+
+Falls noch keine Test-Infrastruktur existiert:
+
+* Mindestens ein reproduzierbares Szenario pro nicht-trivialem Pull Request bereitstellen, oder
+* Eine ausführbare Debug-Funktion mit klaren Anweisungen hinzufügen
+
+== Commit- und Pull-Request-Richtlinien
+
+=== Commits
+
+Verwenden Sie klare, beschreibende Commit-Messages, zum Beispiel:
+
+* `Implement event card: donations (purple_03)`
+* `Refactor: replace hard-coded card branching with dispatch table`
+* `Fix: ensure_player initializes desktops`
+
+=== Pull-Request-Beschreibung
+
+Ein Pull Request sollte enthalten:
+
+* Eine kurze Zusammenfassung der Änderungen
+* Die Begründung („warum“)
+* Hinweise zum Testen der Änderungen
+* Offene Fragen oder Follow-ups, falls vorhanden
+
+== Bugs melden / Features vorschlagen
+
+Bitte eröffnen Sie ein GitHub-Issue und fügen Sie Folgendes bei:
+
+* Erwartetes vs. tatsächliches Verhalten
+* Schritte zur Reproduktion
+* Relevante Log-Ausgaben
+* Commit-Hash oder Branch-Name (falls zutreffend)
+
+Für größere Änderungen bitte zuerst eine Discussion eröffnen.
+
+== Verhaltenskodex
+
+Bitte bleiben Sie respektvoll und professionell.
+Unterschiedliche Meinungen sind normal, Diskussionen sollten jedoch technisch
+und lösungsorientiert geführt werden.
+
+== Lizenz
+
+Mit dem Einreichen eines Beitrags erklären Sie sich damit einverstanden, dass Ihre Arbeit
+unter derselben Lizenz wie dieses Repository veröffentlicht wird.

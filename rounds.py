@@ -1159,3 +1159,7 @@ def run_game(state: GameStateTD, player_count: int, *, seed: int = 42, gray_limi
     for pid in player_ids:
         ps = state["players"][pid]
         broadcast(state, f"Player {pid}: VP={ps['victory_points']}, coins={ps['coins']}, rubies={ps['rubies']}")
+
+
+def apply_ui_action(state: GameStateTD, pid: int, action_id: str, payload: dict | None) -> None:
+    ...

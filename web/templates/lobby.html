@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>QuQu Lobby</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="page">
+    <h1>QuQu Web PoC</h1>
+
+    {% if request.query_params.get("err") %}
+      <div class="error">Error: {{ request.query_params.get("err") }}</div>
+    {% endif %}
+
+    <div class="grid2">
+      <section class="card">
+        <h2>Create game (host)</h2>
+        <form method="post" action="/create">
+          <label>Host name</label>
+          <input name="host_name" placeholder="Sziller" required />
+          <button type="submit">Create</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Join game</h2>
+        <form method="post" action="/join">
+          <label>Join code</label>
+          <input name="join_code" placeholder="e.g. a1b2c3" required />
+          <label>Player name</label>
+          <input name="player_name" placeholder="Player 2" required />
+          <button type="submit">Join</button>
+        </form>
+      </section>
+    </div>
+
+    <p class="hint">
+      LAN tip: start the server with <code>--host 0.0.0.0</code> and let others open <code>http://HOST_IP:8000</code>.
+    </p>
+  </div>
+</body>
+</html>

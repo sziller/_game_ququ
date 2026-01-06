@@ -1,0 +1,15 @@
+<div class="inputbar">
+  <form method="post" action="/g/{{ game_id }}/input">
+    <input type="hidden" name="pid" value="{{ pid }}" />
+
+    <input
+      class="inputfield"
+      type="text"
+      name="text"
+      placeholder="Type your answer / command here..."
+      autocomplete="off"
+    />
+
+    <button type="submit">Enter</button>
+  </form>
+</div>

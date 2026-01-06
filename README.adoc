@@ -62,11 +62,14 @@ Consult inline comments and recent commits for the most up-to-date execution flo
 [source,text]
 ----
 .
+├── actions.py        # Rule actions and helper functions
 ├── state.py          # Central game and player state definitions
 ├── rounds.py         # Round and phase sequencing logic
 ├── event_cards.py    # Event card definitions and dispatch logic
-├── actions.py        # Rule actions and helper functions
+├── catalog.py        # Inventory der Chips
+├── setup.py          # Game setup helpers
 ├── board.py          # Board layout, constants, and field definitions
+├── chip_policies.py  # Central dispatch for chip behavior policies (Quacks prototype)
 └── main.py           # Entry point / simulation runner
 ----
 

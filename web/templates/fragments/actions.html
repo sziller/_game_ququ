@@ -1,0 +1,17 @@
+<h2>Actions</h2>
+
+<form method="post" action="/g/{{ game_id }}/action">
+  <input type="hidden" name="pid" value="{{ pid }}" />
+
+  <div class="actions">
+    {% for a in ui.actions %}
+      <button name="action" value="{{ a.action_id }}" type="submit"
+              {% if not a.enabled %}disabled{% endif %}>
+        {{ a.label }}
+      </button>
+      {% if a.reason %}
+        <div class="hint">{{ a.reason }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</form>

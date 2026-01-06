@@ -1,0 +1,11 @@
+<h2>Board</h2>
+
+<div class="board-wrap">
+  <img class="board-img" src="{{ url_for('static', path='img/board/pot.png') }}" alt="Board" />
+</div>
+
+<div class="kv">
+  <div><span>Round</span><b>{{ ui.board.round_idx }}</b></div>
+  <div><span>Phase</span><b>{{ ui.board.phase }}</b></div>
+  <div><span>Current pid</span><b>{{ ui.board.current_pid }}</b></div>
+</div>
